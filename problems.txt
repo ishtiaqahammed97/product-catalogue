@@ -1,0 +1,6 @@
+// productListUl.innerHTML = "";
+// setting id
+
+//// free code camp problem
+// spinal case
+// pig latin
