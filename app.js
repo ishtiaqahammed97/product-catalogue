@@ -8,7 +8,40 @@ const productListUl = document.querySelector(".collection");
 const showMsg = document.querySelector(".msg")
 
 // data/state 
-let productData = [];
+let productData = getDataFromLocalStorage();
+
+function getDataFromLocalStorage() {
+    let items = '';
+    if (localStorage.getItem("productItems") === null) {
+        items = [];
+    } else {
+        items = JSON.parse(localStorage.getItem("productItems"));
+    }
+    return items;
+}
+
+function setDataToLocalStorage(item) {
+    let items = '';
+    if(localStorage.getItem("productItems") === null) {
+        items = [];
+        items.push(item);
+        localStorage.setItem("productItems", JSON.stringify(items));
+    } else {
+        items = JSON.parse(localStorage.getItem("productItems"));
+        items.push(item);
+        localStorage.setItem("productItems", JSON.stringify(items));
+    }
+}
+
+function deleteItemFromLocalStorage(id) {
+    const items = JSON.parse(localStorage.getItem("productItems"));
+        let result = items.filter(product => {
+            return product.id !== id;
+        })
+       localStorage.setItem("productItems", JSON.stringify(result));
+       if(result.length === 0) location.reload();
+
+}
 
 // added data showing to ui
 function getData(productList) {
@@ -58,11 +91,14 @@ const addProduct = e => {
     ) {
         alert('Please fill up necessary and valid information')
     } else {
-        productData.push({
+        const data = {
             id: id,
             name: name,
             price: price
-        });
+        }
+        productData.push(data);
+        // set data to localStorage
+        setDataToLocalStorage(data);
         productListUl.innerHTML = '';
         getData(productData);
         nameInput.value = '';
@@ -80,10 +116,7 @@ const deleteProduct = (e) => {
         // removing from UI
         // getting id 
         const id = parseInt(target.id.split('-')[1])
-        const result = productData.filter(product => {
-            return product.id !== id;
-        })
-        productData = result;
+        deleteItemFromLocalStorage(id);
     }
 }
 
@@ -105,7 +138,6 @@ const filteringProduct = (e) => {
             }
         });
 }
-
 
 
 // function showMessage(fetchMessage, searchMessage) {
