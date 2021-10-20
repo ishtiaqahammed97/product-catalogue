@@ -22,7 +22,7 @@ function getDataFromLocalStorage() {
 
 function setDataToLocalStorage(item) {
     let items = '';
-    if(localStorage.getItem("productItems") === null) {
+    if (localStorage.getItem("productItems") === null) {
         items = [];
         items.push(item);
         localStorage.setItem("productItems", JSON.stringify(items));
@@ -35,11 +35,11 @@ function setDataToLocalStorage(item) {
 
 function deleteItemFromLocalStorage(id) {
     const items = JSON.parse(localStorage.getItem("productItems"));
-        let result = items.filter(product => {
-            return product.id !== id;
-        })
-       localStorage.setItem("productItems", JSON.stringify(result));
-       if(result.length === 0) location.reload();
+    let result = items.filter(product => {
+        return product.id !== id;
+    })
+    localStorage.setItem("productItems", JSON.stringify(result));
+    if (result.length === 0) location.reload();
 
 }
 
@@ -68,7 +68,7 @@ function getData(productList) {
 getData(productData);
 
 /// message showing function
-function showMessage(message) {
+function showMessage(message = '') {
     showMsg.innerHTML = message;
 }
 
@@ -116,27 +116,33 @@ const deleteProduct = (e) => {
         // removing from UI
         // getting id 
         const id = parseInt(target.id.split('-')[1])
+
+        let result = productData.filter(productItem => {
+            return productItem.id !== id;
+        });
+        productData = result;
         deleteItemFromLocalStorage(id);
     }
 }
-
 /// searching product
 const filteringProduct = (e) => {
+    let itemLength = 0;
     const text = e.target.value.toLowerCase()
     document.querySelectorAll(".collection .collection-item")
         .forEach(item => {
             const productName = item.firstElementChild.textContent.toLocaleLowerCase();
             if (productName.indexOf(text) === -1) {
                 // showMessage(null, true)
-                showMessage("No item found")
+                // showMessage("No item found")
                 item.style.display = "none";
                 // showMsg.innerHTML = "No item found"
             } else {
                 // showMsg.innerHTML = ""
                 item.style.display = "block";
-                showMsg.innerHTML = ""
+                ++itemLength;
             }
         });
+        (itemLength > 0) ? showMessage() : showMessage('No item found');
 }
 
 
