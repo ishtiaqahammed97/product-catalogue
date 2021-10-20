@@ -7,9 +7,8 @@ const deleteBtn = document.querySelector(".delete-product");
 const productListUl = document.querySelector(".collection");
 const ShowMsg = document.querySelector(".msg")
 
-
 // data/state 
-const productData = [];
+let productData = [];
 
 function getData(productList) {
     if (productData.length > 0) {
@@ -64,5 +63,33 @@ addBtn.addEventListener("click", e => {
     }
 })
 
-
 //// remove item
+productListUl.addEventListener("click", (e) => {
+    if (e.target.classList.contains("delete-product")) {
+        // e.target.parentElement.remove();
+        const target = e.target.parentElement;
+        e.target.parentElement.parentElement.removeChild(target)
+
+        // removing from UI
+        // getting id 
+        const id = parseInt(target.id.split('-')[1])
+        const result = productData.filter(product => {
+            return product.id !== id;
+        })
+        productData = result;
+    }
+});
+
+/// searching product
+filterInput.addEventListener('keyup', (e) => {
+    const text = e.target.value.toLowerCase()
+    document.querySelectorAll(".collection .collection-item")
+        .forEach(item => {
+            const productName = item.firstElementChild.textContent.toLocaleLowerCase();
+            if (productName.indexOf(text) === -1) {
+                item.style.display = "none";
+            } else {
+                item.style.display = "block";
+            }
+        });
+});
