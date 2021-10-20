@@ -5,37 +5,45 @@ const priceInput = document.querySelector(".product-price");
 const addBtn = document.querySelector(".add-product");
 const deleteBtn = document.querySelector(".delete-product");
 const productListUl = document.querySelector(".collection");
-const ShowMsg = document.querySelector(".msg")
+const showMsg = document.querySelector(".msg")
 
 // data/state 
 let productData = [];
 
+// added data showing to ui
 function getData(productList) {
     if (productData.length > 0) {
-        ShowMsg.innerHTML = '';
+        showMsg.innerHTML = '';
         let li = '';
         productList.forEach(product => {
+            const { id, name, price } = product;
             li = document.createElement('li');
             li.className = 'list-group-item collection-item';
-            li.id = `product-${product.id}`;
-            li.innerHTML = `<strong>${product.name}</strong>-
-            <span class="product-price">${product.price}</span>
+            li.id = `product-${id}`;
+            li.innerHTML = `<strong>${name}</strong>-
+            <span class="product-price">${price}</span>
             <i class="fa fa-trash float-end delete-product"></i>`;
 
             productListUl.appendChild(li);
         });
     } else {
-        ShowMsg.innerHTML = 'No item to show';
+        // showMsg.innerHTML = 'No item to show';
+        // showMessage(true, null)
+        showMessage("Please add product")
     }
 }
 getData(productData);
 
-/// adding data 
-addBtn.addEventListener("click", e => {
+/// message showing function
+function showMessage(message) {
+    showMsg.innerHTML = message;
+}
+
+/// adding item 
+const addProduct = e => {
     e.preventDefault();
     const name = nameInput.value;
     const price = priceInput.value;
-
     //setting id
     let id;
     if (productData.length === 0) {
@@ -43,7 +51,6 @@ addBtn.addEventListener("click", e => {
     } else {
         id = productData[productData.length - 1].id + 1;
     }
-
     /// validation 
     if (
         name === '' || price === '' ||
@@ -61,10 +68,10 @@ addBtn.addEventListener("click", e => {
         nameInput.value = '';
         priceInput.value = '';
     }
-})
+}
 
 //// remove item
-productListUl.addEventListener("click", (e) => {
+const deleteProduct = (e) => {
     if (e.target.classList.contains("delete-product")) {
         // e.target.parentElement.remove();
         const target = e.target.parentElement;
@@ -78,18 +85,41 @@ productListUl.addEventListener("click", (e) => {
         })
         productData = result;
     }
-});
+}
 
 /// searching product
-filterInput.addEventListener('keyup', (e) => {
+const filteringProduct = (e) => {
     const text = e.target.value.toLowerCase()
     document.querySelectorAll(".collection .collection-item")
         .forEach(item => {
             const productName = item.firstElementChild.textContent.toLocaleLowerCase();
             if (productName.indexOf(text) === -1) {
+                // showMessage(null, true)
+                showMessage("No item found")
                 item.style.display = "none";
+                // showMsg.innerHTML = "No item found"
             } else {
+                // showMsg.innerHTML = ""
                 item.style.display = "block";
+                showMsg.innerHTML = ""
             }
         });
-});
+}
+
+
+
+// function showMessage(fetchMessage, searchMessage) {
+//     if(fetchMessage) {
+//         showMsg.innerHTML = "Please add product";
+//     } else if (searchMessage) {
+//         showMsg.innerHTML = "No item found";
+//     }
+// }
+
+/// events calling
+const allEvents = () => {
+    addBtn.addEventListener("click", addProduct);
+    productListUl.addEventListener("click", deleteProduct);
+    filterInput.addEventListener('keyup', filteringProduct);
+}
+allEvents();
