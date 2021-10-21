@@ -65,7 +65,6 @@ function getData(productList) {
         showMessage("Please add product")
     }
 }
-getData(productData);
 
 /// message showing function
 function showMessage(message = '') {
@@ -154,10 +153,11 @@ const filteringProduct = (e) => {
 //     }
 // }
 
-/// events calling
-const allEvents = () => {
-    addBtn.addEventListener("click", addProduct);
+// events calling
+const loadEventListeners = () => {
     productListUl.addEventListener("click", deleteProduct);
+    window.addEventListener('DOMContentLoaded', getData.bind(null, productData));
+    addBtn.addEventListener("click", addProduct);
     filterInput.addEventListener('keyup', filteringProduct);
 }
-allEvents();
+loadEventListeners();
