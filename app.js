@@ -6,9 +6,11 @@ const addBtn = document.querySelector(".add-product");
 const deleteBtn = document.querySelector(".delete-product");
 const productListUl = document.querySelector(".collection");
 const showMsg = document.querySelector(".msg")
+const formElm = document.querySelector("form")
 
 // data/state 
 let productData = getDataFromLocalStorage();
+console.log(productData);
 
 function getDataFromLocalStorage() {
     let items = '';
@@ -45,17 +47,20 @@ function deleteItemFromLocalStorage(id) {
 
 // added data showing to ui
 function getData(productList) {
+    productListUl.innerHTML = ''
     if (productData.length > 0) {
-        showMsg.innerHTML = '';
-        let li = '';
+        showMessage()
         productList.forEach(product => {
+            console.log(product.id);
             const { id, name, price } = product;
-            li = document.createElement('li');
+            let li = document.createElement('li');
             li.className = 'list-group-item collection-item';
             li.id = `product-${id}`;
             li.innerHTML = `<strong>${name}</strong>-
-            <span class="product-price">${price}</span>
-            <i class="fa fa-trash float-end delete-product"></i>`;
+            <span class="product-price">$${price}</span>
+            <i class="fas fa-pencil-alt float-end edit-product"></i>
+            <i class="fas fa-trash ms-2 float-end delete-product"></i>
+            `
 
             productListUl.appendChild(li);
         });
@@ -97,16 +102,90 @@ const addProduct = e => {
         }
         productData.push(data);
         // set data to localStorage
-        setDataToLocalStorage(data);
-        productListUl.innerHTML = '';
+        setDataToLocalStorage(data)
+        
         getData(productData);
+        // productListUl.innerHTML = '';
         nameInput.value = '';
         priceInput.value = '';
     }
 }
+function resetInput() {
+    nameInput.value = '';
+    priceInput.value = '';
+}
+function resetUI() {
+    addBtn.style.display = 'block';
+    document.querySelector('.update-product').remove()
+    document.querySelector('#id').remove()
+}
 
+function addOrUpdateProduct(e) {
+    if (e.target.classList.contains('add-product')) {
+        addProduct(e)
+    } else if (e.target.classList.contains('update-product')) {
+        updateProduct(e)
+        // reset the input
+        resetInput();
+        // remove update btn
+        resetUI()
+        // remove the hidden id
+        // displaying submit btn
+    }
+}
+
+function updateProduct(e) {
+    e.preventDefault()
+    const name = nameInput.value;
+    const price = priceInput.value;
+    // find the id
+    const id = parseInt(e.target.previousElementSibling.value, 10)
+    // update the data source
+    const productWithUpdates = productData.map(product => {
+        if (product.id === id) {
+            return {
+                ...product,
+                name,
+                price
+            }
+        } else {
+            return product;
+        }
+    })
+    /// data level update
+    productData = productWithUpdates;
+    console.log(productData);
+    /// UI update
+    getData(productData)
+}
+
+function findProduct(id) {
+    return productData.find(product => product.id === id);
+};
+
+function populateEditForm(product) {
+    nameInput.value = product.name;
+    priceInput.value = product.price;
+
+    // id element
+    const idElm = `<input type="hidden" id="id" value=${product.id} />`
+    /// update submit button
+    const updateButtonElm = `<button class="btn btn-info btn-block text-center update-product">Update</button>`;
+
+    if(document.querySelector('#id')) {
+        document.querySelector('#id').setAttribute('value', product.id);
+    }
+
+    if(!document.querySelector('.update-product')) {
+        document.forms[0].insertAdjacentHTML('beforeend', idElm);
+        document.forms[0].insertAdjacentHTML('beforeend', updateButtonElm);
+
+    }
+    /// hide submit button
+    addBtn.style.display = 'none';
+}
 //// remove item
-const deleteProduct = (e) => {
+const updateOrDeleteProduct = (e) => {
     if (e.target.classList.contains("delete-product")) {
         // e.target.parentElement.remove();
         const target = e.target.parentElement;
@@ -121,6 +200,16 @@ const deleteProduct = (e) => {
         });
         productData = result;
         deleteItemFromLocalStorage(id);
+    } else if (e.target.classList.contains("edit-product")) {
+        //finding the id
+        const target = e.target.parentElement;
+        // getting id
+        const id = parseInt(target.id.split("-")[1]);
+        // find the product
+        const foundProduct = findProduct(id);
+        /// populate UI
+        populateEditForm(foundProduct);
+        console.log(foundProduct);
     }
 }
 /// searching product
@@ -141,7 +230,7 @@ const filteringProduct = (e) => {
                 ++itemLength;
             }
         });
-        (itemLength > 0) ? showMessage() : showMessage('No item found');
+    (itemLength > 0) ? showMessage() : showMessage('No item found');
 }
 
 
@@ -155,9 +244,11 @@ const filteringProduct = (e) => {
 
 // events calling
 const loadEventListeners = () => {
-    productListUl.addEventListener("click", deleteProduct);
+    productListUl.addEventListener("click", updateOrDeleteProduct);
     window.addEventListener('DOMContentLoaded', getData.bind(null, productData));
-    addBtn.addEventListener("click", addProduct);
+    // addBtn.addEventListener("click", addProduct);
+    formElm.addEventListener('click', addOrUpdateProduct);
+
     filterInput.addEventListener('keyup', filteringProduct);
 }
 loadEventListeners();
