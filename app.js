@@ -218,7 +218,7 @@ const filteringProduct = (e) => {
     const text = e.target.value.toLowerCase()
     document.querySelectorAll(".collection .collection-item")
         .forEach(item => {
-            const productName = item.firstElementChild.textContent.toLocaleLowerCase();
+            const productName = item.firstElementChild.textContent.toLowerCase();
             if (productName.indexOf(text) === -1) {
                 // showMessage(null, true)
                 // showMessage("No item found")
